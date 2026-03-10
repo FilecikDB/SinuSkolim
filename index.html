@@ -7,7 +7,7 @@
 <style>
 
 body{
-font-family:Arial;
+font-family: Arial;
 text-align:center;
 background:#eef2ff;
 }
@@ -36,6 +36,7 @@ pointer-events:none;
 }
 
 </style>
+
 </head>
 <body>
 
@@ -55,7 +56,7 @@ Suma sinusów: 0 <br>
 Odrodzenia: 0
 </div>
 
-<div id="player"></div>
+<div id="player" style="display:none;"></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -68,12 +69,11 @@ function onYouTubeIframeAPIReady(){
 player = new YT.Player('player',{
 height:'0',
 width:'0',
-videoId:'8J1stp9AbOk',
+videoId:'XMKh7Pif6Os',
 playerVars:{
 autoplay:0,
-controls:0,
 loop:1,
-playlist:'8J1stp9AbOk'
+playlist:'XMKh7Pif6Os'
 }
 });
 
