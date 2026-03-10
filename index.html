@@ -43,20 +43,13 @@ pointer-events:none;
 
 <button id="startBtn">START</button><br>
 <button id="pukBtn">PUK</button>
-<button id="buyBoost">Kup +1 suma/s (1 coin)</button>
+<button id="buyBoost">Kup +1 / obrót (1 coin)</button>
 
 <canvas id="plane" width="500" height="500"></canvas>
 
 <img id="gif" src="puk.gif">
 
-<div id="info">
-Kąt: - <br>
-tryg(kąta): - <br>
-Suma tryg: 0 <br>
-Odrodzenia: 0 <br>
-Coins: 0 <br>
-Auto gain: 0/s
-</div>
+<div id="info"></div>
 
 <div id="player"></div>
 
@@ -65,6 +58,7 @@ Auto gain: 0/s
 <script>
 
 let player;
+let stage2Loaded=false;
 
 function onYouTubeIframeAPIReady(){
 
@@ -91,6 +85,8 @@ const centerY=canvas.height/2;
 const radius=200;
 
 let angle=0;
+let prevAngle=0;
+
 let sumaTryg=0;
 let rebirths=0;
 let coins=0;
@@ -100,10 +96,16 @@ let started=false;
 
 function updateVolume(){
 
-let volume=sumaTryg;
+let volume;
 
-if(volume<0) volume=0;
+if(rebirths>=10){
+volume=sumaTryg*0.5;
+}else{
+volume=sumaTryg;
+}
+
 if(volume>100) volume=100;
+if(volume<0) volume=0;
 
 if(player){
 player.setVolume(volume);
@@ -165,10 +167,23 @@ gif.style.top=(rect.top+y-75)+"px";
 
 function animate(){
 
+prevAngle=angle;
+
 angle+=0.02;
 
 if(angle>Math.PI*2){
 angle=0;
+
+/* auto gain per obrót */
+
+if(started){
+
+sumaTryg+=autoGain;
+updateInfo();
+updateVolume();
+
+}
+
 }
 
 draw();
@@ -191,8 +206,11 @@ tryg=Math.cos(angle);
 
 gif.src="skirr.gif";
 
-if(player.getVideoData().video_id!="-6KuSa0zgaA"){
+if(!stage2Loaded){
+
 player.loadVideoById("-6KuSa0zgaA");
+stage2Loaded=true;
+
 }
 
 }else{
@@ -203,7 +221,9 @@ tryg=Math.sin(angle);
 
 sumaTryg+=tryg;
 
-if(sumaTryg>=100){
+let threshold = rebirths>=10 ? 200 : 100;
+
+if(sumaTryg>=threshold){
 
 sumaTryg=0;
 rebirths++;
@@ -212,14 +232,7 @@ coins++;
 }
 
 updateVolume();
-
-document.getElementById("info").innerHTML=
-"Kąt: "+deg.toFixed(2)+"°<br>"+
-"tryg(kąta): "+tryg.toFixed(4)+"<br>"+
-"Suma tryg: "+sumaTryg.toFixed(4)+"<br>"+
-"Odrodzenia: "+rebirths+"<br>"+
-"Coins: "+coins+"<br>"+
-"Auto gain: "+autoGain+"/s";
+updateInfo(deg,tryg);
 
 };
 
@@ -230,29 +243,23 @@ if(coins>=1){
 coins--;
 autoGain++;
 
+updateInfo();
+
 }
 
 };
 
-setInterval(()=>{
+function updateInfo(deg=angle*180/Math.PI,tryg=Math.sin(angle)){
 
-if(started){
-
-sumaTryg+=autoGain;
-
-if(sumaTryg>=100){
-
-sumaTryg=0;
-rebirths++;
-coins++;
+document.getElementById("info").innerHTML=
+"Kąt: "+deg.toFixed(2)+"°<br>"+
+"tryg(kąta): "+tryg.toFixed(4)+"<br>"+
+"Suma tryg: "+sumaTryg.toFixed(4)+"<br>"+
+"Odrodzenia: "+rebirths+"<br>"+
+"Coins: "+coins+"<br>"+
+"Auto gain: "+autoGain+"/obrót";
 
 }
-
-updateVolume();
-
-}
-
-},1000);
 
 animate();
 
