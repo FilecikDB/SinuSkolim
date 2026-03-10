@@ -37,6 +37,7 @@ pointer-events:none;
 
 </style>
 </head>
+
 <body>
 
 <h2>Kliknij PUK aby zapisać kąt</h2>
@@ -171,7 +172,10 @@ if(!started) return;
 let deg=angle*180/Math.PI;
 let sin=Math.sin(angle);
 
-sumSin+=sin;
+/* MNOŻNIK REBIRTH */
+let multiplier = 1 + (rebirths / 10);
+
+sumSin += sin * multiplier;
 
 if(sumSin>=100){
 
