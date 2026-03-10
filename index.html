@@ -18,10 +18,15 @@ border:2px solid black;
 }
 
 button{
-font-size:18px;
-padding:10px 20px;
-margin:5px;
+font-size:20px;
+padding:10px 25px;
+margin:10px;
 cursor:pointer;
+}
+
+#info{
+margin-top:20px;
+font-size:20px;
 }
 
 #gif{
@@ -30,11 +35,8 @@ width:150px;
 pointer-events:none;
 }
 
-#shop{
-margin-top:20px;
-}
-
 </style>
+
 </head>
 <body>
 
@@ -47,14 +49,8 @@ margin-top:20px;
 
 <img id="gif" src="puk.gif">
 
-<div id="info"></div>
-
-<div id="shop">
-
-<h3>Sklep</h3>
-
-<button id="buyAuto">+1 za obrót (1 coin)</button>
-
+<div id="info">
+Rebirthy: 0
 </div>
 
 <div id="player"></div>
@@ -92,14 +88,11 @@ const radius=200;
 let angle=0;
 let sumSin=0;
 let rebirths=0;
-let coins=0;
-let autoGain=0;
-
 let started=false;
 
 function updateMap(){
 
-if(rebirths>=5 && map===1){
+if(rebirths>=10 && map===1){
 
 map=2;
 
@@ -141,36 +134,24 @@ value=Math.sin(angle);
 value=Math.cos(angle);
 }
 
-sumSin+=value;
+let multiplier=1+(rebirths/10);
 
-checkRebirth();
-
-updateVolume();
-
-};
-
-function checkRebirth(){
+sumSin+=value*multiplier;
 
 if(sumSin>=100){
 
 sumSin=0;
 rebirths++;
-coins++;
 
 updateMap();
 
 }
 
-}
+updateVolume();
 
-buyAuto.onclick=()=>{
-
-if(coins>=1){
-
-coins--;
-autoGain++;
-
-}
+info.innerHTML=
+"Rebirthy: "+rebirths+"<br>"+
+"Mapa: "+map;
 
 };
 
@@ -202,49 +183,18 @@ function animate(){
 angle+=0.02;
 
 if(angle>Math.PI*2){
-
 angle=0;
-
-/* AUTO GAIN */
-
-sumSin+=autoGain;
-
-checkRebirth();
-
-updateVolume();
-
 }
 
 draw();
 
-updateInfo();
-
 requestAnimationFrame(animate);
-
-}
-
-function updateInfo(){
-
-let trig;
-
-if(map===1){
-trig=Math.sin(angle);
-}else{
-trig=Math.cos(angle);
-}
-
-info.innerHTML=
-"Suma: "+sumSin.toFixed(2)+"<br>"+
-"Trig: "+trig.toFixed(3)+"<br>"+
-"Rebirthy: "+rebirths+"<br>"+
-"Coins: "+coins+"<br>"+
-"Auto gain: "+autoGain+"<br>"+
-"Mapa: "+map;
 
 }
 
 animate();
 
 </script>
+
 </body>
 </html>
