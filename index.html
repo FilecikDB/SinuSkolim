@@ -7,7 +7,7 @@
 <style>
 
 body{
-font-family: Arial;
+font-family:Arial;
 text-align:center;
 background:#eef2ff;
 }
@@ -36,8 +36,8 @@ pointer-events:none;
 }
 
 </style>
-
 </head>
+
 <body>
 
 <h2>Kliknij PUK aby zapisać kąt</h2>
@@ -56,7 +56,7 @@ Suma sinusów: 0 <br>
 Odrodzenia: 0
 </div>
 
-<div id="player" style="display:none;"></div>
+<div id="player"></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -69,11 +69,12 @@ function onYouTubeIframeAPIReady(){
 player = new YT.Player('player',{
 height:'0',
 width:'0',
-videoId:'XMKh7Pif6Os',
+videoId:'8J1stp9AbOk',
 playerVars:{
 autoplay:0,
+controls:0,
 loop:1,
-playlist:'XMKh7Pif6Os'
+playlist:'8J1stp9AbOk'
 }
 });
 
@@ -171,7 +172,10 @@ if(!started) return;
 let deg=angle*180/Math.PI;
 let sin=Math.sin(angle);
 
-sumSin+=sin;
+/* MNOŻNIK REBIRTH */
+let multiplier = 1 + (rebirths / 10);
+
+sumSin += sin * multiplier;
 
 if(sumSin>=100){
 
