@@ -26,7 +26,7 @@ cursor:pointer;
 
 #gif{
 position:absolute;
-width:150px;
+width:120px;
 pointer-events:none;
 }
 
@@ -37,14 +37,16 @@ padding-top:10px;
 }
 
 </style>
-</head>
 
+</head>
 <body>
 
 <h2>Sinus Skolim</h2>
 
 <button id="startBtn">START</button>
 <button id="pukBtn">PUK</button>
+
+<br><br>
 
 <canvas id="plane" width="500" height="500"></canvas>
 
@@ -53,8 +55,11 @@ padding-top:10px;
 <div id="info"></div>
 
 <div id="shop">
+
 <h3>Sklep</h3>
+
 <button id="buyAuto">+1 suma / sek (1 coin)</button>
+
 </div>
 
 <div id="player"></div>
@@ -90,6 +95,7 @@ const centerY = 250;
 const radius = 200;
 
 let angle = 0;
+
 let sumSin = 0;
 let rebirths = 0;
 let coins = 0;
@@ -131,7 +137,9 @@ let volume = sumSin;
 if(volume < 0) volume = 0;
 if(volume > 100) volume = 100;
 
+if(player){
 player.setVolume(volume);
+}
 
 }
 
@@ -154,6 +162,8 @@ sumSin += value;
 checkRebirth();
 
 updateVolume();
+
+updateInfo();
 
 };
 
@@ -224,8 +234,8 @@ ctx.stroke();
 
 const rect = canvas.getBoundingClientRect();
 
-gif.style.left = (rect.left + x - 75) + "px";
-gif.style.top = (rect.top + y - 75) + "px";
+gif.style.left = (rect.left + x - 60) + "px";
+gif.style.top = (rect.top + y - 60) + "px";
 
 }
 
@@ -243,7 +253,7 @@ trig = Math.cos(angle);
 
 info.innerHTML =
 "Suma: " + sumSin.toFixed(2) + "<br>" +
-"Trig: " + trig.toFixed(3) + "<br>" +
+"Funkcja: " + trig.toFixed(3) + "<br>" +
 "Rebirthy: " + rebirths + "<br>" +
 "Coins: " + coins + "<br>" +
 "+/sek: " + autoGain + "<br>" +
@@ -262,7 +272,6 @@ angle = 0;
 }
 
 draw();
-updateInfo();
 
 requestAnimationFrame(animate);
 
@@ -277,7 +286,10 @@ setInterval(()=>{
 sumSin += autoGain;
 
 checkRebirth();
+
 updateVolume();
+
+updateInfo();
 
 },1000);
 
