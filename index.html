@@ -51,8 +51,8 @@ pointer-events:none;
 
 <div id="info">
 Kąt: - <br>
-sin(kąta): - <br>
-Suma sinusów: 0 <br>
+tryg(kąta): - <br>
+Suma tryg: 0 <br>
 Odrodzenia: 0 <br>
 Coins: 0 <br>
 Auto gain: 0/s
@@ -91,18 +91,16 @@ const centerY=canvas.height/2;
 const radius=200;
 
 let angle=0;
-let sumSin=0;
+let sumaTryg=0;
 let rebirths=0;
 let coins=0;
 let autoGain=0;
 
 let started=false;
 
-/* GŁOŚNOŚĆ */
-
 function updateVolume(){
 
-let volume=sumSin;
+let volume=sumaTryg;
 
 if(volume<0) volume=0;
 if(volume>100) volume=100;
@@ -113,8 +111,6 @@ player.setVolume(volume);
 
 }
 
-/* START */
-
 document.getElementById("startBtn").onclick=()=>{
 
 if(player){
@@ -123,10 +119,8 @@ player.mute();
 player.playVideo();
 
 setTimeout(()=>{
-
 player.unMute();
 updateVolume();
-
 },500);
 
 }
@@ -134,8 +128,6 @@ updateVolume();
 started=true;
 
 };
-
-/* RYSOWANIE */
 
 function draw(){
 
@@ -171,8 +163,6 @@ gif.style.top=(rect.top+y-75)+"px";
 
 }
 
-/* ANIMACJA */
-
 function animate(){
 
 angle+=0.02;
@@ -187,45 +177,51 @@ requestAnimationFrame(animate);
 
 }
 
-/* PUK */
-
 document.getElementById("pukBtn").onclick=()=>{
 
 if(!started) return;
 
 let deg=angle*180/Math.PI;
-let sin=Math.sin(angle);
 
-sumSin+=sin;
+let tryg;
 
-if(sumSin>=100){
+if(rebirths>=10){
 
-sumSin=0;
+tryg=Math.cos(angle);
+
+gif.src="skirr.gif";
+
+if(player.getVideoData().video_id!="-6KuSa0zgaA"){
+player.loadVideoById("-6KuSa0zgaA");
+}
+
+}else{
+
+tryg=Math.sin(angle);
+
+}
+
+sumaTryg+=tryg;
+
+if(sumaTryg>=100){
+
+sumaTryg=0;
 rebirths++;
 coins++;
 
 }
 
 updateVolume();
-updateInfo(deg,sin);
-
-};
-
-/* INFO */
-
-function updateInfo(deg=angle*180/Math.PI,sin=Math.sin(angle)){
 
 document.getElementById("info").innerHTML=
 "Kąt: "+deg.toFixed(2)+"°<br>"+
-"sin(kąta): "+sin.toFixed(4)+"<br>"+
-"Suma sinusów: "+sumSin.toFixed(4)+"<br>"+
+"tryg(kąta): "+tryg.toFixed(4)+"<br>"+
+"Suma tryg: "+sumaTryg.toFixed(4)+"<br>"+
 "Odrodzenia: "+rebirths+"<br>"+
 "Coins: "+coins+"<br>"+
 "Auto gain: "+autoGain+"/s";
 
-}
-
-/* SKLEP */
+};
 
 document.getElementById("buyBoost").onclick=()=>{
 
@@ -234,30 +230,25 @@ if(coins>=1){
 coins--;
 autoGain++;
 
-updateInfo();
-
 }
 
 };
-
-/* AUTO GAIN */
 
 setInterval(()=>{
 
 if(started){
 
-sumSin+=autoGain;
+sumaTryg+=autoGain;
 
-if(sumSin>=100){
+if(sumaTryg>=100){
 
-sumSin=0;
+sumaTryg=0;
 rebirths++;
 coins++;
 
 }
 
 updateVolume();
-updateInfo();
 
 }
 
