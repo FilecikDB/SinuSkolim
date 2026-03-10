@@ -43,6 +43,7 @@ pointer-events:none;
 
 <button id="startBtn">START</button><br>
 <button id="pukBtn">PUK</button>
+<button id="buyBoost">Kup +1 suma/s (1 coin)</button>
 
 <canvas id="plane" width="500" height="500"></canvas>
 
@@ -52,7 +53,9 @@ pointer-events:none;
 Kąt: - <br>
 sin(kąta): - <br>
 Suma sinusów: 0 <br>
-Odrodzenia: 0
+Odrodzenia: 0 <br>
+Coins: 0 <br>
+Auto gain: 0/s
 </div>
 
 <div id="player"></div>
@@ -90,6 +93,9 @@ const radius=200;
 let angle=0;
 let sumSin=0;
 let rebirths=0;
+let coins=0;
+let autoGain=0;
+
 let started=false;
 
 function updateVolume(){
@@ -177,18 +183,65 @@ if(sumSin>=100){
 
 sumSin=0;
 rebirths++;
+coins++;
 
 }
 
 updateVolume();
 
+updateInfo(deg,sin);
+
+};
+
+function updateInfo(deg=angle*180/Math.PI,sin=Math.sin(angle)){
+
 document.getElementById("info").innerHTML=
 "Kąt: "+deg.toFixed(2)+"°<br>"+
 "sin(kąta): "+sin.toFixed(4)+"<br>"+
 "Suma sinusów: "+sumSin.toFixed(4)+"<br>"+
-"Odrodzenia: "+rebirths;
+"Odrodzenia: "+rebirths+"<br>"+
+"Coins: "+coins+"<br>"+
+"Auto gain: "+autoGain+"/s";
+
+}
+
+/* SKLEP */
+
+document.getElementById("buyBoost").onclick=()=>{
+
+if(coins>=1){
+
+coins--;
+autoGain++;
+
+updateInfo();
+
+}
 
 };
+
+/* AUTO GAIN CO SEKUNDĘ */
+
+setInterval(()=>{
+
+if(started){
+
+sumSin+=autoGain;
+
+if(sumSin>=100){
+
+sumSin=0;
+rebirths++;
+coins++;
+
+}
+
+updateVolume();
+updateInfo();
+
+}
+
+},1000);
 
 animate();
 
