@@ -98,6 +98,8 @@ let autoGain=0;
 
 let started=false;
 
+/* GŁOŚNOŚĆ */
+
 function updateVolume(){
 
 let volume=sumSin;
@@ -111,16 +113,29 @@ player.setVolume(volume);
 
 }
 
+/* START */
+
 document.getElementById("startBtn").onclick=()=>{
 
 if(player){
+
+player.mute();
 player.playVideo();
+
+setTimeout(()=>{
+
+player.unMute();
+updateVolume();
+
+},500);
+
 }
 
-updateVolume();
 started=true;
 
 };
+
+/* RYSOWANIE */
 
 function draw(){
 
@@ -156,6 +171,8 @@ gif.style.top=(rect.top+y-75)+"px";
 
 }
 
+/* ANIMACJA */
+
 function animate(){
 
 angle+=0.02;
@@ -169,6 +186,8 @@ draw();
 requestAnimationFrame(animate);
 
 }
+
+/* PUK */
 
 document.getElementById("pukBtn").onclick=()=>{
 
@@ -188,10 +207,11 @@ coins++;
 }
 
 updateVolume();
-
 updateInfo(deg,sin);
 
 };
+
+/* INFO */
 
 function updateInfo(deg=angle*180/Math.PI,sin=Math.sin(angle)){
 
@@ -220,7 +240,7 @@ updateInfo();
 
 };
 
-/* AUTO GAIN CO SEKUNDĘ */
+/* AUTO GAIN */
 
 setInterval(()=>{
 
