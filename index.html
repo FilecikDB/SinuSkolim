@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Sinus Game</title>
+<title>Sinus Skolim</title>
 
 <style>
 
@@ -18,15 +18,10 @@ border:2px solid black;
 }
 
 button{
-font-size:20px;
-padding:10px 25px;
-margin:10px;
+font-size:18px;
+padding:10px 20px;
+margin:5px;
 cursor:pointer;
-}
-
-#info{
-margin-top:20px;
-font-size:20px;
 }
 
 #gif{
@@ -35,25 +30,34 @@ width:150px;
 pointer-events:none;
 }
 
-</style>
-</head>
+#shop{
+margin-top:20px;
+border-top:2px solid black;
+padding-top:10px;
+}
 
+</style>
+
+</head>
 <body>
 
-<h2>Kliknij PUK aby zapisać kąt</h2>
+<h2>Sinus Skolim</h2>
 
-<button id="startBtn">START</button><br>
+<button id="startBtn">START</button>
 <button id="pukBtn">PUK</button>
 
 <canvas id="plane" width="500" height="500"></canvas>
 
 <img id="gif" src="puk.gif">
 
-<div id="info">
-Kąt: - <br>
-sin(kąta): - <br>
-Suma sinusów: 0 <br>
-Odrodzenia: 0
+<div id="info"></div>
+
+<div id="shop">
+
+<h3>Sklep</h3>
+
+<button id="buyAuto">+1 sumy / sek (1 coin)</button>
+
 </div>
 
 <div id="player"></div>
@@ -63,6 +67,7 @@ Odrodzenia: 0
 <script>
 
 let player;
+let map = 1;
 
 function onYouTubeIframeAPIReady(){
 
@@ -71,7 +76,6 @@ height:'0',
 width:'0',
 videoId:'8J1stp9AbOk',
 playerVars:{
-autoplay:0,
 controls:0,
 loop:1,
 playlist:'8J1stp9AbOk'
@@ -80,121 +84,171 @@ playlist:'8J1stp9AbOk'
 
 }
 
-const canvas=document.getElementById("plane");
-const ctx=canvas.getContext("2d");
-const gif=document.getElementById("gif");
+const canvas = document.getElementById("plane");
+const ctx = canvas.getContext("2d");
+const gif = document.getElementById("gif");
 
-const centerX=canvas.width/2;
-const centerY=canvas.height/2;
-const radius=200;
+const centerX = 250;
+const centerY = 250;
+const radius = 200;
 
-let angle=0;
-let sumSin=0;
-let rebirths=0;
-let started=false;
+let angle = 0;
+let sumSin = 0;
+let rebirths = 0;
+let coins = 0;
+let autoGain = 0;
+
+let started = false;
+
+function updateMap(){
+
+if(rebirths >= 5 && map === 1){
+
+map = 2;
+
+gif.src = "skirr.gif";
+
+player.loadVideoById("-6KuSa0zgaA");
+
+}
+
+}
 
 function updateVolume(){
 
-let volume=sumSin;
+let volume = sumSin;
 
-if(volume<0) volume=0;
-if(volume>100) volume=100;
+if(volume < 0) volume = 0;
+if(volume > 100) volume = 100;
 
-if(player){
 player.setVolume(volume);
-}
 
 }
 
-document.getElementById("startBtn").onclick=()=>{
+startBtn.onclick = () => {
 
-if(player){
 player.playVideo();
+started = true;
+
+};
+
+pukBtn.onclick = () => {
+
+if(!started) return;
+
+let value;
+
+if(map === 1){
+value = Math.sin(angle);
+}else{
+value = Math.cos(angle);
 }
+
+sumSin += value;
+
+checkRebirth();
 
 updateVolume();
-started=true;
+
+};
+
+function checkRebirth(){
+
+if(sumSin >= 100){
+
+sumSin = 0;
+
+rebirths++;
+coins++;
+
+updateMap();
+
+}
+
+}
+
+buyAuto.onclick = () => {
+
+if(coins >= 1){
+
+coins--;
+autoGain++;
+
+}
 
 };
 
 function draw(){
 
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-ctx.beginPath();
-ctx.moveTo(0,centerY);
-ctx.lineTo(canvas.width,centerY);
-
-ctx.moveTo(centerX,0);
-ctx.lineTo(centerX,canvas.height);
-
-ctx.stroke();
+ctx.clearRect(0,0,500,500);
 
 ctx.beginPath();
 ctx.arc(centerX,centerY,radius,0,Math.PI*2);
 ctx.stroke();
 
-let x=centerX+radius*Math.cos(angle);
-let y=centerY-radius*Math.sin(angle);
+let x = centerX + radius*Math.cos(angle);
+let y = centerY - radius*Math.sin(angle);
 
 ctx.beginPath();
 ctx.moveTo(centerX,centerY);
 ctx.lineTo(x,y);
-ctx.strokeStyle="blue";
-ctx.lineWidth=3;
 ctx.stroke();
 
-const rect=canvas.getBoundingClientRect();
+const rect = canvas.getBoundingClientRect();
 
-gif.style.left=(rect.left+x-75)+"px";
-gif.style.top=(rect.top+y-75)+"px";
+gif.style.left = (rect.left + x - 75) + "px";
+gif.style.top = (rect.top + y - 75) + "px";
 
 }
 
 function animate(){
 
-angle+=0.02;
+angle += 0.02;
 
-if(angle>Math.PI*2){
-angle=0;
+if(angle > Math.PI*2){
+angle = 0;
 }
 
 draw();
+
+updateInfo();
 
 requestAnimationFrame(animate);
 
 }
 
-document.getElementById("pukBtn").onclick=()=>{
+function updateInfo(){
 
-if(!started) return;
+let trig;
 
-let deg=angle*180/Math.PI;
-let sin=Math.sin(angle);
+if(map === 1){
+trig = Math.sin(angle);
+}else{
+trig = Math.cos(angle);
+}
 
-/* MNOŻNIK REBIRTH */
-let multiplier = 1 + (rebirths / 10);
-
-sumSin += sin * multiplier;
-
-if(sumSin>=100){
-
-sumSin=0;
-rebirths++;
+info.innerHTML =
+"Suma: " + sumSin.toFixed(2) + "<br>" +
+"Funkcja: " + trig.toFixed(3) + "<br>" +
+"Rebirthy: " + rebirths + "<br>" +
+"Coins: " + coins + "<br>" +
+"+/sek: " + autoGain + "<br>" +
+"Mapa: " + map;
 
 }
 
+animate();
+
+/* AUTO GAIN CO SEKUNDĘ */
+
+setInterval(()=>{
+
+sumSin += autoGain;
+
+checkRebirth();
 updateVolume();
 
-document.getElementById("info").innerHTML=
-"Kąt: "+deg.toFixed(2)+"°<br>"+
-"sin(kąta): "+sin.toFixed(4)+"<br>"+
-"Suma sinusów: "+sumSin.toFixed(4)+"<br>"+
-"Odrodzenia: "+rebirths;
-
-};
-
-animate();
+},1000);
 
 </script>
 
