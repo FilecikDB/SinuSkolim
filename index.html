@@ -5,7 +5,6 @@
 <title>Sinus Skolim</title>
 
 <style>
-
 body{
 font-family:Arial;
 text-align:center;
@@ -35,10 +34,9 @@ margin-top:20px;
 border-top:2px solid black;
 padding-top:10px;
 }
-
 </style>
-
 </head>
+
 <body>
 
 <h2>Sinus Skolim</h2>
@@ -53,14 +51,12 @@ padding-top:10px;
 <div id="info"></div>
 
 <div id="shop">
-
 <h3>Sklep</h3>
-
 <button id="buyAuto">+1 sumy / sek (1 coin)</button>
-
 </div>
 
-<div id="player"></div>
+<!-- PLAYER YOUTUBE -->
+<div id="player" style="width:0;height:0;"></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -68,29 +64,6 @@ padding-top:10px;
 
 let player;
 let map = 1;
-
-function onYouTubeIframeAPIReady(){
-
-player = new YT.Player('player',{
-height:'0',
-width:'0',
-videoId:'8J1stp9AbOk',
-playerVars:{
-controls:0,
-loop:1,
-playlist:'8J1stp9AbOk'
-}
-});
-
-}
-
-const canvas = document.getElementById("plane");
-const ctx = canvas.getContext("2d");
-const gif = document.getElementById("gif");
-
-const centerX = 250;
-const centerY = 250;
-const radius = 200;
 
 let angle = 0;
 let sumSin = 0;
@@ -100,6 +73,46 @@ let autoGain = 0;
 
 let started = false;
 
+const canvas = document.getElementById("plane");
+const ctx = canvas.getContext("2d");
+const gif = document.getElementById("gif");
+
+const centerX = 250;
+const centerY = 250;
+const radius = 200;
+
+/* YOUTUBE PLAYER */
+
+function onYouTubeIframeAPIReady(){
+
+player = new YT.Player('player',{
+height:'0',
+width:'0',
+videoId:'8J1stp9AbOk',
+playerVars:{
+autoplay:0,
+controls:0,
+loop:1,
+playlist:'8J1stp9AbOk'
+}
+});
+
+}
+
+/* START */
+
+startBtn.onclick = function(){
+
+if(player){
+player.playVideo();
+}
+
+started = true;
+
+};
+
+/* ZMIANA MAPY */
+
 function updateMap(){
 
 if(rebirths >= 5 && map === 1){
@@ -108,13 +121,21 @@ map = 2;
 
 gif.src = "skirr.gif";
 
-player.loadVideoById("-6KuSa0zgaA");
+player.loadVideoById({
+videoId:"-6KuSa0zgaA",
+loop:1,
+playlist:"-6KuSa0zgaA"
+});
 
 }
 
 }
+
+/* GŁOŚNOŚĆ */
 
 function updateVolume(){
+
+if(!player) return;
 
 let volume = sumSin;
 
@@ -125,14 +146,9 @@ player.setVolume(volume);
 
 }
 
-startBtn.onclick = () => {
+/* PUK */
 
-player.playVideo();
-started = true;
-
-};
-
-pukBtn.onclick = () => {
+pukBtn.onclick = function(){
 
 if(!started) return;
 
@@ -152,12 +168,13 @@ updateVolume();
 
 };
 
+/* REBIRTH */
+
 function checkRebirth(){
 
 if(sumSin >= 100){
 
 sumSin = 0;
-
 rebirths++;
 coins++;
 
@@ -167,7 +184,9 @@ updateMap();
 
 }
 
-buyAuto.onclick = () => {
+/* SKLEP */
+
+buyAuto.onclick = function(){
 
 if(coins >= 1){
 
@@ -177,6 +196,8 @@ autoGain++;
 }
 
 };
+
+/* RYSOWANIE */
 
 function draw(){
 
@@ -201,21 +222,7 @@ gif.style.top = (rect.top + y - 75) + "px";
 
 }
 
-function animate(){
-
-angle += 0.02;
-
-if(angle > Math.PI*2){
-angle = 0;
-}
-
-draw();
-
-updateInfo();
-
-requestAnimationFrame(animate);
-
-}
+/* INFO */
 
 function updateInfo(){
 
@@ -228,20 +235,37 @@ trig = Math.cos(angle);
 }
 
 info.innerHTML =
-"Suma: " + sumSin.toFixed(2) + "<br>" +
-"Funkcja: " + trig.toFixed(3) + "<br>" +
-"Rebirthy: " + rebirths + "<br>" +
-"Coins: " + coins + "<br>" +
-"+/sek: " + autoGain + "<br>" +
-"Mapa: " + map;
+"Suma: "+sumSin.toFixed(2)+"<br>"+
+"Trig: "+trig.toFixed(3)+"<br>"+
+"Rebirthy: "+rebirths+"<br>"+
+"Coins: "+coins+"<br>"+
+"+/sek: "+autoGain+"<br>"+
+"Mapa: "+map;
+
+}
+
+/* ANIMACJA */
+
+function animate(){
+
+angle += 0.02;
+
+if(angle > Math.PI*2){
+angle = 0;
+}
+
+draw();
+updateInfo();
+
+requestAnimationFrame(animate);
 
 }
 
 animate();
 
-/* AUTO GAIN CO SEKUNDĘ */
+/* AUTO GAIN */
 
-setInterval(()=>{
+setInterval(function(){
 
 sumSin += autoGain;
 
