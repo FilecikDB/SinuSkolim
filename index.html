@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Sinus Skolim Game</title>
+<title>Sinus Game</title>
 
 <style>
 
@@ -36,11 +36,11 @@ pointer-events:none;
 }
 
 </style>
-
 </head>
+
 <body>
 
-<h2>Sinus Skolim</h2>
+<h2>Kliknij PUK aby zapisać kąt</h2>
 
 <button id="startBtn">START</button><br>
 <button id="pukBtn">PUK</button>
@@ -50,7 +50,10 @@ pointer-events:none;
 <img id="gif" src="puk.gif">
 
 <div id="info">
-Rebirthy: 0
+Kąt: - <br>
+sin(kąta): - <br>
+Suma sinusów: 0 <br>
+Odrodzenia: 0
 </div>
 
 <div id="player"></div>
@@ -60,15 +63,15 @@ Rebirthy: 0
 <script>
 
 let player;
-let map=1;
 
 function onYouTubeIframeAPIReady(){
 
-player=new YT.Player('player',{
+player = new YT.Player('player',{
 height:'0',
 width:'0',
 videoId:'8J1stp9AbOk',
 playerVars:{
+autoplay:0,
 controls:0,
 loop:1,
 playlist:'8J1stp9AbOk'
@@ -81,28 +84,14 @@ const canvas=document.getElementById("plane");
 const ctx=canvas.getContext("2d");
 const gif=document.getElementById("gif");
 
-const centerX=250;
-const centerY=250;
+const centerX=canvas.width/2;
+const centerY=canvas.height/2;
 const radius=200;
 
 let angle=0;
 let sumSin=0;
 let rebirths=0;
 let started=false;
-
-function updateMap(){
-
-if(rebirths>=10 && map===1){
-
-map=2;
-
-gif.src="skirr.gif";
-
-player.loadVideoById("-6KuSa0zgaA");
-
-}
-
-}
 
 function updateVolume(){
 
@@ -111,53 +100,35 @@ let volume=sumSin;
 if(volume<0) volume=0;
 if(volume>100) volume=100;
 
+if(player){
 player.setVolume(volume);
+}
 
 }
 
-startBtn.onclick=()=>{
+document.getElementById("startBtn").onclick=()=>{
 
+if(player){
 player.playVideo();
-started=true;
-
-};
-
-pukBtn.onclick=()=>{
-
-if(!started) return;
-
-let value;
-
-if(map===1){
-value=Math.sin(angle);
-}else{
-value=Math.cos(angle);
-}
-
-let multiplier=1+(rebirths/10);
-
-sumSin+=value*multiplier;
-
-if(sumSin>=100){
-
-sumSin=0;
-rebirths++;
-
-updateMap();
-
 }
 
 updateVolume();
-
-info.innerHTML=
-"Rebirthy: "+rebirths+"<br>"+
-"Mapa: "+map;
+started=true;
 
 };
 
 function draw(){
 
-ctx.clearRect(0,0,500,500);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ctx.beginPath();
+ctx.moveTo(0,centerY);
+ctx.lineTo(canvas.width,centerY);
+
+ctx.moveTo(centerX,0);
+ctx.lineTo(centerX,canvas.height);
+
+ctx.stroke();
 
 ctx.beginPath();
 ctx.arc(centerX,centerY,radius,0,Math.PI*2);
@@ -169,6 +140,8 @@ let y=centerY-radius*Math.sin(angle);
 ctx.beginPath();
 ctx.moveTo(centerX,centerY);
 ctx.lineTo(x,y);
+ctx.strokeStyle="blue";
+ctx.lineWidth=3;
 ctx.stroke();
 
 const rect=canvas.getBoundingClientRect();
@@ -191,6 +164,35 @@ draw();
 requestAnimationFrame(animate);
 
 }
+
+document.getElementById("pukBtn").onclick=()=>{
+
+if(!started) return;
+
+let deg=angle*180/Math.PI;
+let sin=Math.sin(angle);
+
+/* MNOŻNIK REBIRTH */
+let multiplier = 1 + (rebirths / 10);
+
+sumSin += sin * multiplier;
+
+if(sumSin>=100){
+
+sumSin=0;
+rebirths++;
+
+}
+
+updateVolume();
+
+document.getElementById("info").innerHTML=
+"Kąt: "+deg.toFixed(2)+"°<br>"+
+"sin(kąta): "+sin.toFixed(4)+"<br>"+
+"Suma sinusów: "+sumSin.toFixed(4)+"<br>"+
+"Odrodzenia: "+rebirths;
+
+};
 
 animate();
 
