@@ -5,7 +5,6 @@
 <title>Trig Game</title>
 
 <style>
-
 body{
 font-family:Arial;
 background:#eef2ff;
@@ -56,7 +55,6 @@ height:100%;
 width:0%;
 background:limegreen;
 }
-
 </style>
 </head>
 <body>
@@ -64,25 +62,18 @@ background:limegreen;
 <h2>Trig Game</h2>
 
 <div id="gameUI">
-
 <button id="startBtn">START</button>
 <button id="adminBtn" style="display:none">ADMIN</button>
-
 <br>
-
 <button id="pukBtn">PUK</button>
 <button id="buyBoost">Kup +1 / obrót (1 coin)</button>
-
 </div>
 
 <div id="adminUI" style="display:none">
-
 <h3>TRYB ADMIN</h3>
-
 <button id="addRebirth">+1 Rebirth</button>
 <button id="removeRebirth">-1 Rebirth</button>
 <button id="testBtn">TEST</button>
-
 </div>
 
 <div id="layout">
@@ -93,7 +84,6 @@ background:limegreen;
 </div>
 
 <div id="rightPanel">
-
 <div>Kąt: <span id="angleVal">0</span></div>
 <div>Tryg: <span id="trygVal">0</span></div>
 <div>Suma tryg: <span id="sumVal">0</span></div>
@@ -106,7 +96,6 @@ background:limegreen;
 </div>
 
 </div>
-
 </div>
 
 <div id="player"></div>
@@ -120,6 +109,7 @@ background:limegreen;
 
 let player1,player2,player3,player4
 let activePlayer
+let playersReady=false
 
 function onYouTubeIframeAPIReady(){
 
@@ -129,6 +119,7 @@ player3=new YT.Player('player3',{height:'0',width:'0',videoId:'8KD6sb88rMs'})
 player4=new YT.Player('player4',{height:'0',width:'0',videoId:'1dBuX8HmUcQ'})
 
 activePlayer=player1
+playersReady=true
 
 }
 
@@ -200,6 +191,11 @@ updateInfo()
 }
 
 startBtn.onclick=()=>{
+
+if(!playersReady){
+alert("YouTube player jeszcze się ładuje, spróbuj za chwilę")
+return
+}
 
 player1.mute(); player1.playVideo()
 player2.mute(); player2.playVideo()
