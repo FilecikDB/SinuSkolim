@@ -28,7 +28,7 @@ border:2px solid black;
 font-size:20px;
 line-height:30px;
 text-align:left;
-width:250px;
+width:260px;
 }
 
 button{
@@ -57,6 +57,17 @@ width:0%;
 background:limegreen;
 }
 
+#levelUp{
+position:fixed;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:60px;
+font-weight:bold;
+color:red;
+display:none;
+}
+
 </style>
 </head>
 <body>
@@ -64,18 +75,25 @@ background:limegreen;
 <h2>Trig Game</h2>
 
 <div id="gameUI">
+
 <button id="startBtn">START</button>
 <button id="adminBtn" style="display:none">ADMIN</button>
+
 <br>
+
 <button id="pukBtn">PUK</button>
 <button id="buyBoost">Kup +1 / obrót (1 coin)</button>
+
 </div>
 
 <div id="adminUI" style="display:none">
+
 <h3>TRYB ADMIN</h3>
+
 <button id="addRebirth">+1 Rebirth</button>
 <button id="removeRebirth">-1 Rebirth</button>
 <button id="testBtn">TEST</button>
+
 </div>
 
 <div id="layout">
@@ -104,8 +122,14 @@ background:limegreen;
 <div id="levelBar" class="progressBar"></div>
 </div>
 
+<h3>Ranking</h3>
+<div id="ranking"></div>
+
 </div>
+
 </div>
+
+<div id="levelUp"></div>
 
 <div id="player"></div>
 <div id="player2"></div>
@@ -124,6 +148,63 @@ let coins=0
 let autoGain=0
 let started=false
 
+/* SAVE */
+
+function saveGame(){
+
+localStorage.setItem("rebirths",rebirths)
+localStorage.setItem("coins",coins)
+localStorage.setItem("autoGain",autoGain)
+
+}
+
+function loadGame(){
+
+rebirths=parseInt(localStorage.getItem("rebirths"))||0
+coins=parseInt(localStorage.getItem("coins"))||0
+autoGain=parseInt(localStorage.getItem("autoGain"))||0
+
+}
+
+/* ranking */
+
+function updateRanking(){
+
+let list=JSON.parse(localStorage.getItem("ranking")||"[]")
+
+list.push(rebirths)
+list.sort((a,b)=>b-a)
+list=list.slice(0,5)
+
+localStorage.setItem("ranking",JSON.stringify(list))
+
+let html=""
+
+list.forEach((v,i)=>{
+html+=(i+1)+". "+v+"<br>"
+})
+
+document.getElementById("ranking").innerHTML=html
+
+}
+
+/* level up */
+
+function showLevel(text){
+
+const el=document.getElementById("levelUp")
+
+el.innerText=text
+el.style.display="block"
+
+setTimeout(()=>{
+el.style.display="none"
+},2000)
+
+}
+
+/* canvas */
+
 const canvas=document.getElementById("plane")
 const ctx=canvas.getContext("2d")
 const gif=document.getElementById("gif")
@@ -132,45 +213,37 @@ const centerX=canvas.width/2
 const centerY=canvas.height/2
 const radius=200
 
-/* przyciski */
+/* buttons */
 
 document.getElementById("startBtn").onclick=startGame
 document.getElementById("pukBtn").onclick=puk
 document.getElementById("buyBoost").onclick=buyBoost
 
 document.getElementById("adminBtn").onclick=()=>{
-
-document.getElementById("gameUI").style.display="none"
-document.getElementById("adminUI").style.display="block"
-
+gameUI.style.display="none"
+adminUI.style.display="block"
 }
 
 document.getElementById("testBtn").onclick=()=>{
-
-document.getElementById("adminUI").style.display="none"
-document.getElementById("gameUI").style.display="block"
+adminUI.style.display="none"
+gameUI.style.display="block"
 updateStage()
-
 }
 
 document.getElementById("addRebirth").onclick=()=>{
-
 rebirths++
 coins++
 updateStage()
 updateInfo()
-
 }
 
 document.getElementById("removeRebirth").onclick=()=>{
-
 if(rebirths>0) rebirths--
 updateStage()
 updateInfo()
-
 }
 
-/* sekret admin */
+/* secret admin */
 
 let secret=""
 
@@ -222,17 +295,15 @@ player3.mute();player3.playVideo()
 player4.mute();player4.playVideo()
 
 setTimeout(()=>{
-
 player1.unMute()
 activePlayer=player1
-
 },500)
 
 started=true
 
 }
 
-/* gra */
+/* gameplay */
 
 function puk(){
 
@@ -241,12 +312,25 @@ if(!started) return
 let tryg=Math.sin(angle)
 
 if(rebirths>=10) tryg=Math.cos(angle)
+
 if(rebirths>=20){
+
 tryg=Math.tan(angle)
+
 if(tryg>5) tryg=5
 if(tryg<-5) tryg=-5
+
 }
+
 if(rebirths>=30) tryg=Math.sin(angle)
+
+/* critical */
+
+let deg=angle*180/Math.PI
+
+if(Math.abs(deg-90)<5 || Math.abs(deg-270)<5){
+tryg*=3
+}
 
 sumaTryg+=tryg
 
@@ -256,13 +340,22 @@ if(rebirths>=20) threshold=300
 if(rebirths>=30) threshold=400
 
 if(sumaTryg>=threshold){
+
 sumaTryg=0
 rebirths++
 coins++
+
+updateRanking()
+
+if(rebirths==10) showLevel("LEVEL 2 COS")
+if(rebirths==20) showLevel("LEVEL 3 TAN")
+if(rebirths==30) showLevel("LEVEL 4 SIN")
+
 }
 
 updateStage()
 updateInfo()
+saveGame()
 
 }
 
@@ -272,11 +365,12 @@ if(coins>=1){
 coins--
 autoGain++
 updateInfo()
+saveGame()
 }
 
 }
 
-/* muzyka */
+/* stage */
 
 function switchMusic(player){
 
@@ -311,7 +405,7 @@ switchMusic(player1)
 
 }
 
-/* animacja */
+/* draw */
 
 function draw(){
 
@@ -361,9 +455,12 @@ updateInfo()
 }
 
 draw()
+
 requestAnimationFrame(animate)
 
 }
+
+/* ui */
 
 function updateInfo(){
 
@@ -385,6 +482,7 @@ document.getElementById("levelBar").style.width=((rebirths%10)/10*100)+"%"
 if(activePlayer){
 
 let volume=sumaTryg
+
 if(volume>100) volume=100
 if(volume<0) volume=0
 
@@ -394,6 +492,9 @@ activePlayer.setVolume(volume)
 
 }
 
+loadGame()
+updateInfo()
+updateRanking()
 animate()
 
 </script>
