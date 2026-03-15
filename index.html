@@ -5,16 +5,15 @@
 <title>Trig Game</title>
 
 <style>
-
 body{
 font-family:Arial;
 background:#eef2ff;
+text-align:center;
 }
 
 #layout{
 display:flex;
 justify-content:center;
-align-items:flex-start;
 gap:40px;
 margin-top:20px;
 }
@@ -27,6 +26,7 @@ border:2px solid black;
 #rightPanel{
 font-size:20px;
 line-height:35px;
+text-align:left;
 }
 
 button{
@@ -41,18 +41,25 @@ position:absolute;
 width:120px;
 pointer-events:none;
 }
-
 </style>
 </head>
 <body>
 
 <h2>Trig Game</h2>
 
+<div id="gameUI">
 <button id="startBtn">START</button>
 <button id="adminBtn">ADMIN</button>
 <br>
 <button id="pukBtn">PUK</button>
 <button id="buyBoost">Kup +1 / obrót (1 coin)</button>
+</div>
+
+<div id="adminUI" style="display:none">
+<button id="addRebirth">+1 Rebirth</button>
+<button id="removeRebirth">-1 Rebirth</button>
+<button id="testBtn">TEST</button>
+</div>
 
 <div id="layout">
 
@@ -62,14 +69,12 @@ pointer-events:none;
 </div>
 
 <div id="rightPanel">
-
 <div>Kąt: <span id="angleVal">0</span></div>
 <div>Tryg: <span id="trygVal">0</span></div>
 <div>Suma tryg: <span id="sumVal">0</span></div>
 <div>Rebirthy: <span id="rebirthVal">0</span></div>
 <div>Coins: <span id="coinVal">0</span></div>
 <div>Tryg/s: <span id="autoVal">0</span></div>
-
 </div>
 
 </div>
@@ -88,14 +93,27 @@ let activePlayer
 
 function onYouTubeIframeAPIReady(){
 
-player1=new YT.Player('player',{height:'0',width:'0',videoId:'8J1stp9AbOk',playerVars:{loop:1,playlist:'8J1stp9AbOk'}})
-player2=new YT.Player('player2',{height:'0',width:'0',videoId:'-6KuSa0zgaA',playerVars:{loop:1,playlist:'-6KuSa0zgaA'}})
-player3=new YT.Player('player3',{height:'0',width:'0',videoId:'8KD6sb88rMs',playerVars:{loop:1,playlist:'8KD6sb88rMs'}})
-player4=new YT.Player('player4',{height:'0',width:'0',videoId:'1dBuX8HmUcQ',playerVars:{loop:1,playlist:'1dBuX8HmUcQ'}})
+player1=new YT.Player('player',{height:'0',width:'0',videoId:'8J1stp9AbOk'})
+player2=new YT.Player('player2',{height:'0',width:'0',videoId:'-6KuSa0zgaA'})
+player3=new YT.Player('player3',{height:'0',width:'0',videoId:'8KD6sb88rMs'})
+player4=new YT.Player('player4',{height:'0',width:'0',videoId:'1dBuX8HmUcQ'})
 
 activePlayer=player1
-
 }
+
+/* ELEMENTY */
+
+const startBtn=document.getElementById("startBtn")
+const pukBtn=document.getElementById("pukBtn")
+const adminBtn=document.getElementById("adminBtn")
+const buyBoost=document.getElementById("buyBoost")
+
+const addRebirth=document.getElementById("addRebirth")
+const removeRebirth=document.getElementById("removeRebirth")
+const testBtn=document.getElementById("testBtn")
+
+const gameUI=document.getElementById("gameUI")
+const adminUI=document.getElementById("adminUI")
 
 const canvas=document.getElementById("plane")
 const ctx=canvas.getContext("2d")
@@ -116,6 +134,7 @@ let started=false
 
 startBtn.onclick=function(){
 
+if(player1){
 player1.mute(); player1.playVideo()
 player2.mute(); player2.playVideo()
 player3.mute(); player3.playVideo()
@@ -124,27 +143,39 @@ player4.mute(); player4.playVideo()
 setTimeout(()=>{
 player1.unMute()
 activePlayer=player1
-updateVolume()
 },500)
+}
 
 started=true
+}
+
+/* ADMIN */
+
+adminBtn.onclick=function(){
+gameUI.style.display="none"
+adminUI.style.display="block"
+}
+
+testBtn.onclick=function(){
+adminUI.style.display="none"
+gameUI.style.display="block"
+updateStage()
+}
+
+addRebirth.onclick=function(){
+rebirths++
+coins++
+updateStage()
 updateInfo()
-
 }
 
-/* VOLUME */
-
-function updateVolume(){
-
-let volume=sumaTryg
-if(volume>100) volume=100
-if(volume<0) volume=0
-
-activePlayer.setVolume(volume)
-
+removeRebirth.onclick=function(){
+if(rebirths>0) rebirths--
+updateStage()
+updateInfo()
 }
 
-/* DRAW */
+/* RYSOWANIE */
 
 function draw(){
 
@@ -177,7 +208,6 @@ const rect=canvas.getBoundingClientRect()
 
 gif.style.left=(rect.left+x-60)+"px"
 gif.style.top=(rect.top+y-60)+"px"
-
 }
 
 /* ANIMACJA */
@@ -187,12 +217,12 @@ function animate(){
 angle+=0.02
 
 if(angle>Math.PI*2){
+
 angle=0
 
 if(started){
 sumaTryg+=autoGain
 updateInfo()
-updateVolume()
 }
 
 }
@@ -240,7 +270,6 @@ coins++
 }
 
 updateStage()
-updateVolume()
 updateInfo()
 
 }
@@ -267,15 +296,23 @@ gif.src="skirr.gif"
 switchMusic(player2)
 
 }
+else{
+
+gif.src="puk.gif"
+switchMusic(player1)
+
+}
 
 }
 
 function switchMusic(player){
 
 if(activePlayer!==player){
+
 activePlayer.mute()
 player.unMute()
 activePlayer=player
+
 }
 
 }
@@ -285,9 +322,12 @@ activePlayer=player
 buyBoost.onclick=function(){
 
 if(coins>=1){
+
 coins--
 autoGain++
+
 updateInfo()
+
 }
 
 }
@@ -296,8 +336,10 @@ updateInfo()
 
 function updateInfo(){
 
+let tryg=Math.sin(angle)
+
 document.getElementById("angleVal").innerText=(angle*180/Math.PI).toFixed(1)
-document.getElementById("trygVal").innerText=Math.sin(angle).toFixed(4)
+document.getElementById("trygVal").innerText=tryg.toFixed(4)
 document.getElementById("sumVal").innerText=sumaTryg.toFixed(2)
 document.getElementById("rebirthVal").innerText=rebirths
 document.getElementById("coinVal").innerText=coins
