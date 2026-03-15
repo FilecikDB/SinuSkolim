@@ -54,6 +54,7 @@ pointer-events:none;
 <div id="player"></div>
 <div id="player2"></div>
 <div id="player3"></div>
+<div id="player4"></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -62,6 +63,7 @@ pointer-events:none;
 let player1
 let player2
 let player3
+let player4
 let activePlayer
 
 function onYouTubeIframeAPIReady(){
@@ -85,6 +87,13 @@ height:'0',
 width:'0',
 videoId:'8KD6sb88rMs',
 playerVars:{controls:0,loop:1,playlist:'8KD6sb88rMs'}
+})
+
+player4=new YT.Player('player4',{
+height:'0',
+width:'0',
+videoId:'1dBuX8HmUcQ',
+playerVars:{controls:0,loop:1,playlist:'1dBuX8HmUcQ'}
 })
 
 activePlayer=player1
@@ -121,14 +130,10 @@ activePlayer.setVolume(volume)
 
 startBtn.onclick=()=>{
 
-player1.mute()
-player1.playVideo()
-
-player2.mute()
-player2.playVideo()
-
-player3.mute()
-player3.playVideo()
+player1.mute(); player1.playVideo()
+player2.mute(); player2.playVideo()
+player3.mute(); player3.playVideo()
+player4.mute(); player4.playVideo()
 
 setTimeout(()=>{
 player1.unMute()
@@ -202,7 +207,12 @@ if(!started) return
 let deg=angle*180/Math.PI
 let tryg
 
-if(rebirths>=20){
+if(rebirths>=30){
+
+tryg=Math.sin(angle)
+
+}
+else if(rebirths>=20){
 
 tryg=Math.tan(angle)
 
@@ -225,7 +235,8 @@ sumaTryg+=tryg
 
 let threshold=100
 if(rebirths>=10) threshold=200
-if(rebirths>=20) threshold=400
+if(rebirths>=20) threshold=300
+if(rebirths>=30) threshold=400
 
 if(sumaTryg>=threshold){
 sumaTryg=0
@@ -241,7 +252,18 @@ updateInfo(deg,tryg)
 
 function updateStage(){
 
-if(rebirths>=20){
+if(rebirths>=30){
+
+gif.src="zabka.gif"
+
+if(activePlayer!==player4){
+activePlayer.mute()
+player4.unMute()
+activePlayer=player4
+}
+
+}
+else if(rebirths>=20){
 
 gif.src="rikitiki.gif"
 
@@ -283,7 +305,8 @@ function updateInfo(deg=angle*180/Math.PI,tryg=Math.sin(angle)){
 
 let threshold=100
 if(rebirths>=10) threshold=200
-if(rebirths>=20) threshold=400
+if(rebirths>=20) threshold=300
+if(rebirths>=30) threshold=400
 
 info.innerHTML=
 "Kąt: "+deg.toFixed(2)+"°<br>"+
