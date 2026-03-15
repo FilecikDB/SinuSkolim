@@ -64,25 +64,18 @@ background:limegreen;
 <h2>Trig Game</h2>
 
 <div id="gameUI">
-
 <button id="startBtn">START</button>
 <button id="adminBtn" style="display:none">ADMIN</button>
-
 <br>
-
 <button id="pukBtn">PUK</button>
 <button id="buyBoost">Kup +1 / obrót (1 coin)</button>
-
 </div>
 
 <div id="adminUI" style="display:none">
-
 <h3>TRYB ADMIN</h3>
-
 <button id="addRebirth">+1 Rebirth</button>
 <button id="removeRebirth">-1 Rebirth</button>
 <button id="testBtn">TEST</button>
-
 </div>
 
 <div id="layout">
@@ -119,15 +112,88 @@ background:limegreen;
 <div id="player3"></div>
 <div id="player4"></div>
 
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
 
-window.onload=function(){
-
 let player1,player2,player3,player4
-let activePlayer
-let playersReady=false
+let activePlayer=null
+
+let angle=0
+let sumaTryg=0
+let rebirths=0
+let coins=0
+let autoGain=0
+let started=false
+
+const canvas=document.getElementById("plane")
+const ctx=canvas.getContext("2d")
+const gif=document.getElementById("gif")
+
+const centerX=canvas.width/2
+const centerY=canvas.height/2
+const radius=200
+
+/* przyciski */
+
+document.getElementById("startBtn").onclick=startGame
+document.getElementById("pukBtn").onclick=puk
+document.getElementById("buyBoost").onclick=buyBoost
+
+document.getElementById("adminBtn").onclick=()=>{
+
+document.getElementById("gameUI").style.display="none"
+document.getElementById("adminUI").style.display="block"
+
+}
+
+document.getElementById("testBtn").onclick=()=>{
+
+document.getElementById("adminUI").style.display="none"
+document.getElementById("gameUI").style.display="block"
+updateStage()
+
+}
+
+document.getElementById("addRebirth").onclick=()=>{
+
+rebirths++
+coins++
+updateStage()
+updateInfo()
+
+}
+
+document.getElementById("removeRebirth").onclick=()=>{
+
+if(rebirths>0) rebirths--
+updateStage()
+updateInfo()
+
+}
+
+/* sekret admin */
+
+let secret=""
+
+document.addEventListener("keydown",e=>{
+
+secret+=e.key.toUpperCase()
+
+if(secret.includes("SKOLIM")){
+document.getElementById("adminBtn").style.display="inline-block"
+secret=""
+}
+
+})
+
+/* youtube */
+
+function loadYT(){
+
+const tag=document.createElement("script")
+tag.src="https://www.youtube.com/iframe_api"
+document.body.appendChild(tag)
+
+}
 
 window.onYouTubeIframeAPIReady=function(){
 
@@ -137,81 +203,18 @@ player3=new YT.Player('player3',{height:'0',width:'0',videoId:'8KD6sb88rMs',play
 player4=new YT.Player('player4',{height:'0',width:'0',videoId:'1dBuX8HmUcQ',playerVars:{loop:1,playlist:'1dBuX8HmUcQ'}})
 
 activePlayer=player1
-playersReady=true
 
 }
 
-const startBtn=document.getElementById("startBtn")
-const pukBtn=document.getElementById("pukBtn")
-const buyBoost=document.getElementById("buyBoost")
+/* start */
 
-const adminBtn=document.getElementById("adminBtn")
-const adminUI=document.getElementById("adminUI")
-const gameUI=document.getElementById("gameUI")
+function startGame(){
 
-const addRebirth=document.getElementById("addRebirth")
-const removeRebirth=document.getElementById("removeRebirth")
-const testBtn=document.getElementById("testBtn")
-
-const canvas=document.getElementById("plane")
-const ctx=canvas.getContext("2d")
-const gif=document.getElementById("gif")
-
-const rebirthBar=document.getElementById("rebirthBar")
-const levelBar=document.getElementById("levelBar")
-
-const centerX=canvas.width/2
-const centerY=canvas.height/2
-const radius=200
-
-let angle=0
-let sumaTryg=0
-let rebirths=0
-let coins=0
-let autoGain=0
-let started=false
-
-let secret=""
-
-document.addEventListener("keydown",e=>{
-
-secret+=e.key.toUpperCase()
-
-if(secret.includes("SKOLIM")){
-adminBtn.style.display="inline-block"
-secret=""
+if(!player1){
+loadYT()
+setTimeout(startGame,500)
+return
 }
-
-})
-
-adminBtn.onclick=()=>{
-gameUI.style.display="none"
-adminUI.style.display="block"
-}
-
-testBtn.onclick=()=>{
-adminUI.style.display="none"
-gameUI.style.display="block"
-updateStage()
-updateInfo()
-}
-
-addRebirth.onclick=()=>{
-rebirths++
-coins++
-updateStage()
-updateInfo()
-}
-
-removeRebirth.onclick=()=>{
-if(rebirths>0) rebirths--
-updateStage()
-updateInfo()
-}
-
-startBtn.onclick=()=>{
-
-if(!playersReady) return
 
 player1.mute();player1.playVideo()
 player2.mute();player2.playVideo()
@@ -219,23 +222,96 @@ player3.mute();player3.playVideo()
 player4.mute();player4.playVideo()
 
 setTimeout(()=>{
+
 player1.unMute()
 activePlayer=player1
+
 },500)
 
 started=true
 
 }
 
-function updateVolume(){
+/* gra */
 
-let volume=sumaTryg
-if(volume>100) volume=100
-if(volume<0) volume=0
+function puk(){
 
-if(activePlayer) activePlayer.setVolume(volume)
+if(!started) return
+
+let tryg=Math.sin(angle)
+
+if(rebirths>=10) tryg=Math.cos(angle)
+if(rebirths>=20){
+tryg=Math.tan(angle)
+if(tryg>5) tryg=5
+if(tryg<-5) tryg=-5
+}
+if(rebirths>=30) tryg=Math.sin(angle)
+
+sumaTryg+=tryg
+
+let threshold=100
+if(rebirths>=10) threshold=200
+if(rebirths>=20) threshold=300
+if(rebirths>=30) threshold=400
+
+if(sumaTryg>=threshold){
+sumaTryg=0
+rebirths++
+coins++
+}
+
+updateStage()
+updateInfo()
 
 }
+
+function buyBoost(){
+
+if(coins>=1){
+coins--
+autoGain++
+updateInfo()
+}
+
+}
+
+/* muzyka */
+
+function switchMusic(player){
+
+if(activePlayer!==player){
+
+activePlayer.mute()
+player.unMute()
+activePlayer=player
+
+}
+
+}
+
+function updateStage(){
+
+if(rebirths>=30){
+gif.src="zabka.gif"
+switchMusic(player4)
+}
+else if(rebirths>=20){
+gif.src="rikitiki.gif"
+switchMusic(player3)
+}
+else if(rebirths>=10){
+gif.src="skirr.gif"
+switchMusic(player2)
+}
+else{
+gif.src="puk.gif"
+switchMusic(player1)
+}
+
+}
+
+/* animacja */
 
 function draw(){
 
@@ -260,8 +336,6 @@ let y=centerY-radius*Math.sin(angle)
 ctx.beginPath()
 ctx.moveTo(centerX,centerY)
 ctx.lineTo(x,y)
-ctx.strokeStyle="blue"
-ctx.lineWidth=3
 ctx.stroke()
 
 const rect=canvas.getBoundingClientRect()
@@ -291,90 +365,7 @@ requestAnimationFrame(animate)
 
 }
 
-pukBtn.onclick=()=>{
-
-if(!started) return
-
-let tryg
-
-if(rebirths>=30){
-tryg=Math.sin(angle)
-}
-else if(rebirths>=20){
-tryg=Math.tan(angle)
-if(tryg>5) tryg=5
-if(tryg<-5) tryg=-5
-}
-else if(rebirths>=10){
-tryg=Math.cos(angle)
-}
-else{
-tryg=Math.sin(angle)
-}
-
-sumaTryg+=tryg
-
-let threshold=100
-if(rebirths>=10) threshold=200
-if(rebirths>=20) threshold=300
-if(rebirths>=30) threshold=400
-
-if(sumaTryg>=threshold){
-sumaTryg=0
-rebirths++
-coins++
-}
-
-updateStage()
-updateInfo()
-
-}
-
-function switchMusic(player){
-
-if(activePlayer!==player){
-activePlayer.mute()
-player.unMute()
-activePlayer=player
-}
-
-}
-
-function updateStage(){
-
-if(rebirths>=30){
-gif.src="zabka.gif"
-switchMusic(player4)
-}
-else if(rebirths>=20){
-gif.src="rikitiki.gif"
-switchMusic(player3)
-}
-else if(rebirths>=10){
-gif.src="skirr.gif"
-switchMusic(player2)
-}
-else{
-gif.src="puk.gif"
-switchMusic(player1)
-}
-
-}
-
-buyBoost.onclick=()=>{
-if(coins>=1){
-coins--
-autoGain++
-updateInfo()
-}
-}
-
 function updateInfo(){
-
-let threshold=100
-if(rebirths>=10) threshold=200
-if(rebirths>=20) threshold=300
-if(rebirths>=30) threshold=400
 
 document.getElementById("angleVal").innerText=(angle*180/Math.PI).toFixed(1)
 document.getElementById("trygVal").innerText=Math.sin(angle).toFixed(4)
@@ -383,19 +374,27 @@ document.getElementById("rebirthVal").innerText=rebirths
 document.getElementById("coinVal").innerText=coins
 document.getElementById("autoVal").innerText=autoGain
 
-let percent=(sumaTryg/threshold)*100
-rebirthBar.style.width=percent+"%"
+let threshold=100
+if(rebirths>=10) threshold=200
+if(rebirths>=20) threshold=300
+if(rebirths>=30) threshold=400
 
-let levelProgress=((rebirths%10)/10)*100
-levelBar.style.width=levelProgress+"%"
+document.getElementById("rebirthBar").style.width=(sumaTryg/threshold*100)+"%"
+document.getElementById("levelBar").style.width=((rebirths%10)/10*100)+"%"
 
-updateVolume()
+if(activePlayer){
+
+let volume=sumaTryg
+if(volume>100) volume=100
+if(volume<0) volume=0
+
+activePlayer.setVolume(volume)
+
+}
 
 }
 
 animate()
-
-}
 
 </script>
 
