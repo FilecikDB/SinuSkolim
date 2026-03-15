@@ -41,9 +41,18 @@ pointer-events:none;
 
 <h2>Kliknij PUK aby zapisać kąt</h2>
 
-<button id="startBtn">START</button><br>
+<div id="gameButtons">
+<button id="startBtn">START</button>
+<button id="adminBtn">ADMIN</button><br>
 <button id="pukBtn">PUK</button>
 <button id="buyBoost">Kup +1 / obrót (1 coin)</button>
+</div>
+
+<div id="adminPanel" style="display:none">
+<button id="addRebirth">+1 Rebirth</button>
+<button id="removeRebirth">-1 Rebirth</button>
+<button id="testBtn">TEST</button>
+</div>
 
 <canvas id="plane" width="500" height="500"></canvas>
 
@@ -60,41 +69,15 @@ pointer-events:none;
 
 <script>
 
-let player1
-let player2
-let player3
-let player4
+let player1,player2,player3,player4
 let activePlayer
 
 function onYouTubeIframeAPIReady(){
 
-player1=new YT.Player('player',{
-height:'0',
-width:'0',
-videoId:'8J1stp9AbOk',
-playerVars:{controls:0,loop:1,playlist:'8J1stp9AbOk'}
-})
-
-player2=new YT.Player('player2',{
-height:'0',
-width:'0',
-videoId:'-6KuSa0zgaA',
-playerVars:{controls:0,loop:1,playlist:'-6KuSa0zgaA'}
-})
-
-player3=new YT.Player('player3',{
-height:'0',
-width:'0',
-videoId:'8KD6sb88rMs',
-playerVars:{controls:0,loop:1,playlist:'8KD6sb88rMs'}
-})
-
-player4=new YT.Player('player4',{
-height:'0',
-width:'0',
-videoId:'1dBuX8HmUcQ',
-playerVars:{controls:0,loop:1,playlist:'1dBuX8HmUcQ'}
-})
+player1=new YT.Player('player',{height:'0',width:'0',videoId:'8J1stp9AbOk',playerVars:{loop:1,playlist:'8J1stp9AbOk'}})
+player2=new YT.Player('player2',{height:'0',width:'0',videoId:'-6KuSa0zgaA',playerVars:{loop:1,playlist:'-6KuSa0zgaA'}})
+player3=new YT.Player('player3',{height:'0',width:'0',videoId:'8KD6sb88rMs',playerVars:{loop:1,playlist:'8KD6sb88rMs'}})
+player4=new YT.Player('player4',{height:'0',width:'0',videoId:'1dBuX8HmUcQ',playerVars:{loop:1,playlist:'1dBuX8HmUcQ'}})
 
 activePlayer=player1
 
@@ -109,24 +92,63 @@ const centerY=canvas.height/2
 const radius=200
 
 let angle=0
-
 let sumaTryg=0
 let rebirths=0
 let coins=0
 let autoGain=0
-
 let started=false
+
+/* TRYB ADMIN */
+
+adminBtn.onclick=()=>{
+
+document.getElementById("gameButtons").style.display="none"
+document.getElementById("adminPanel").style.display="block"
+
+}
+
+testBtn.onclick=()=>{
+
+document.getElementById("gameButtons").style.display="block"
+document.getElementById("adminPanel").style.display="none"
+
+updateStage()
+updateInfo()
+
+}
+
+/* ADMIN PRZYCISKI */
+
+addRebirth.onclick=()=>{
+
+rebirths++
+coins++
+
+updateInfo()
+
+}
+
+removeRebirth.onclick=()=>{
+
+if(rebirths>0) rebirths--
+
+updateInfo()
+
+}
+
+/* GŁOŚNOŚĆ */
 
 function updateVolume(){
 
 let volume=sumaTryg
-
 if(volume>100) volume=100
 if(volume<0) volume=0
 
 activePlayer.setVolume(volume)
 
 }
+
+/* START */
 
 startBtn.onclick=()=>{
 
@@ -144,6 +166,8 @@ updateVolume()
 started=true
 
 }
+
+/* RYSOWANIE */
 
 function draw(){
 
@@ -179,6 +203,8 @@ gif.style.top=(rect.top+y-75)+"px"
 
 }
 
+/* ANIMACJA */
+
 function animate(){
 
 angle+=0.02
@@ -200,6 +226,8 @@ requestAnimationFrame(animate)
 
 }
 
+/* PUK */
+
 pukBtn.onclick=()=>{
 
 if(!started) return
@@ -208,27 +236,18 @@ let deg=angle*180/Math.PI
 let tryg
 
 if(rebirths>=30){
-
 tryg=Math.sin(angle)
-
 }
 else if(rebirths>=20){
-
 tryg=Math.tan(angle)
-
 if(tryg>5) tryg=5
 if(tryg<-5) tryg=-5
-
 }
 else if(rebirths>=10){
-
 tryg=Math.cos(angle)
-
 }
 else{
-
 tryg=Math.sin(angle)
-
 }
 
 sumaTryg+=tryg
@@ -249,6 +268,8 @@ updateVolume()
 updateInfo(deg,tryg)
 
 }
+
+/* ZMIANA ETAPÓW */
 
 function updateStage(){
 
@@ -288,6 +309,8 @@ activePlayer=player2
 
 }
 
+/* BOOST */
+
 buyBoost.onclick=()=>{
 
 if(coins>=1){
@@ -301,6 +324,8 @@ updateInfo()
 
 }
 
+/* INFO */
+
 function updateInfo(deg=angle*180/Math.PI,tryg=Math.sin(angle)){
 
 let threshold=100
@@ -310,7 +335,7 @@ if(rebirths>=30) threshold=400
 
 info.innerHTML=
 "Kąt: "+deg.toFixed(2)+"°<br>"+
-"wartość funkcji: "+tryg.toFixed(4)+"<br>"+
+"Wartość funkcji: "+tryg.toFixed(4)+"<br>"+
 "Suma tryg: "+sumaTryg.toFixed(4)+" / "+threshold+"<br>"+
 "Odrodzenia: "+rebirths+"<br>"+
 "Coins: "+coins+"<br>"+
