@@ -103,63 +103,33 @@ let coins=0
 let autoGain=0
 let started=false
 
-/* ELEMENTY UI */
+/* UI */
 
 const adminBtn=document.getElementById("adminBtn")
 const adminUI=document.getElementById("adminUI")
 const gameUI=document.getElementById("gameUI")
 
-const addRebirth=document.getElementById("addRebirth")
-const removeRebirth=document.getElementById("removeRebirth")
-const testBtn=document.getElementById("testBtn")
-
-/* ADMIN */
-
 adminBtn.onclick=function(){
-
 gameUI.style.display="none"
 adminUI.style.display="block"
-
 }
 
 testBtn.onclick=function(){
-
 adminUI.style.display="none"
 gameUI.style.display="block"
-
 updateStage()
 updateInfo()
-
 }
 
 addRebirth.onclick=function(){
-
 rebirths++
 coins++
 updateInfo()
-
 }
 
 removeRebirth.onclick=function(){
-
-if(rebirths>0){
-rebirths--
-}
-
+if(rebirths>0) rebirths--
 updateInfo()
-
-}
-
-/* GŁOŚNOŚĆ */
-
-function updateVolume(){
-
-let volume=sumaTryg
-if(volume>100) volume=100
-if(volume<0) volume=0
-
-activePlayer.setVolume(volume)
-
 }
 
 /* START */
@@ -178,10 +148,23 @@ updateVolume()
 },500)
 
 started=true
+updateInfo()
 
 }
 
-/* RYSOWANIE */
+/* VOLUME */
+
+function updateVolume(){
+
+let volume=sumaTryg
+if(volume>100) volume=100
+if(volume<0) volume=0
+
+activePlayer.setVolume(volume)
+
+}
+
+/* DRAW */
 
 function draw(){
 
@@ -217,7 +200,7 @@ gif.style.top=(rect.top+y-75)+"px"
 
 }
 
-/* ANIMACJA */
+/* ANIMATE */
 
 function animate(){
 
@@ -283,7 +266,7 @@ updateInfo(deg,tryg)
 
 }
 
-/* ETAPY */
+/* STAGE */
 
 function updateStage(){
 
