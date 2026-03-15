@@ -41,17 +41,22 @@ pointer-events:none;
 
 <h2>Kliknij PUK aby zapisać kąt</h2>
 
-<div id="gameButtons">
+<div id="gameUI">
 <button id="startBtn">START</button>
-<button id="adminBtn">ADMIN</button><br>
+<button id="adminBtn">ADMIN</button>
+<br>
 <button id="pukBtn">PUK</button>
 <button id="buyBoost">Kup +1 / obrót (1 coin)</button>
 </div>
 
-<div id="adminPanel" style="display:none">
+<div id="adminUI" style="display:none">
+
+<h3>TRYB ADMIN</h3>
+
 <button id="addRebirth">+1 Rebirth</button>
 <button id="removeRebirth">-1 Rebirth</button>
 <button id="testBtn">TEST</button>
+
 </div>
 
 <canvas id="plane" width="500" height="500"></canvas>
@@ -98,39 +103,48 @@ let coins=0
 let autoGain=0
 let started=false
 
-/* TRYB ADMIN */
+/* ELEMENTY UI */
 
-adminBtn.onclick=()=>{
+const adminBtn=document.getElementById("adminBtn")
+const adminUI=document.getElementById("adminUI")
+const gameUI=document.getElementById("gameUI")
 
-document.getElementById("gameButtons").style.display="none"
-document.getElementById("adminPanel").style.display="block"
+const addRebirth=document.getElementById("addRebirth")
+const removeRebirth=document.getElementById("removeRebirth")
+const testBtn=document.getElementById("testBtn")
+
+/* ADMIN */
+
+adminBtn.onclick=function(){
+
+gameUI.style.display="none"
+adminUI.style.display="block"
 
 }
 
-testBtn.onclick=()=>{
+testBtn.onclick=function(){
 
-document.getElementById("gameButtons").style.display="block"
-document.getElementById("adminPanel").style.display="none"
+adminUI.style.display="none"
+gameUI.style.display="block"
 
 updateStage()
 updateInfo()
 
 }
 
-/* ADMIN PRZYCISKI */
-
-addRebirth.onclick=()=>{
+addRebirth.onclick=function(){
 
 rebirths++
 coins++
-
 updateInfo()
 
 }
 
-removeRebirth.onclick=()=>{
+removeRebirth.onclick=function(){
 
-if(rebirths>0) rebirths--
+if(rebirths>0){
+rebirths--
+}
 
 updateInfo()
 
@@ -150,7 +164,7 @@ activePlayer.setVolume(volume)
 
 /* START */
 
-startBtn.onclick=()=>{
+startBtn.onclick=function(){
 
 player1.mute(); player1.playVideo()
 player2.mute(); player2.playVideo()
@@ -228,7 +242,7 @@ requestAnimationFrame(animate)
 
 /* PUK */
 
-pukBtn.onclick=()=>{
+pukBtn.onclick=function(){
 
 if(!started) return
 
@@ -269,7 +283,7 @@ updateInfo(deg,tryg)
 
 }
 
-/* ZMIANA ETAPÓW */
+/* ETAPY */
 
 function updateStage(){
 
@@ -311,15 +325,12 @@ activePlayer=player2
 
 /* BOOST */
 
-buyBoost.onclick=()=>{
+buyBoost.onclick=function(){
 
 if(coins>=1){
-
 coins--
 autoGain++
-
 updateInfo()
-
 }
 
 }
