@@ -112,7 +112,6 @@ background:limegreen;
 </div>
 
 </div>
-
 </div>
 
 <div id="player"></div>
@@ -124,44 +123,42 @@ background:limegreen;
 
 <script>
 
+window.onload=function(){
+
 let player1,player2,player3,player4
 let activePlayer
 let playersReady=false
 
-function onYouTubeIframeAPIReady(){
+window.onYouTubeIframeAPIReady=function(){
 
-player1=new YT.Player('player',{
-height:'0',width:'0',
-videoId:'8J1stp9AbOk',
-playerVars:{loop:1,playlist:'8J1stp9AbOk'}
-})
-
-player2=new YT.Player('player2',{
-height:'0',width:'0',
-videoId:'-6KuSa0zgaA',
-playerVars:{loop:1,playlist:'-6KuSa0zgaA'}
-})
-
-player3=new YT.Player('player3',{
-height:'0',width:'0',
-videoId:'8KD6sb88rMs',
-playerVars:{loop:1,playlist:'8KD6sb88rMs'}
-})
-
-player4=new YT.Player('player4',{
-height:'0',width:'0',
-videoId:'1dBuX8HmUcQ',
-playerVars:{loop:1,playlist:'1dBuX8HmUcQ'}
-})
+player1=new YT.Player('player',{height:'0',width:'0',videoId:'8J1stp9AbOk',playerVars:{loop:1,playlist:'8J1stp9AbOk'}})
+player2=new YT.Player('player2',{height:'0',width:'0',videoId:'-6KuSa0zgaA',playerVars:{loop:1,playlist:'-6KuSa0zgaA'}})
+player3=new YT.Player('player3',{height:'0',width:'0',videoId:'8KD6sb88rMs',playerVars:{loop:1,playlist:'8KD6sb88rMs'}})
+player4=new YT.Player('player4',{height:'0',width:'0',videoId:'1dBuX8HmUcQ',playerVars:{loop:1,playlist:'1dBuX8HmUcQ'}})
 
 activePlayer=player1
 playersReady=true
 
 }
 
+const startBtn=document.getElementById("startBtn")
+const pukBtn=document.getElementById("pukBtn")
+const buyBoost=document.getElementById("buyBoost")
+
+const adminBtn=document.getElementById("adminBtn")
+const adminUI=document.getElementById("adminUI")
+const gameUI=document.getElementById("gameUI")
+
+const addRebirth=document.getElementById("addRebirth")
+const removeRebirth=document.getElementById("removeRebirth")
+const testBtn=document.getElementById("testBtn")
+
 const canvas=document.getElementById("plane")
 const ctx=canvas.getContext("2d")
 const gif=document.getElementById("gif")
+
+const rebirthBar=document.getElementById("rebirthBar")
+const levelBar=document.getElementById("levelBar")
 
 const centerX=canvas.width/2
 const centerY=canvas.height/2
@@ -177,12 +174,40 @@ let started=false
 let secret=""
 
 document.addEventListener("keydown",e=>{
+
 secret+=e.key.toUpperCase()
+
 if(secret.includes("SKOLIM")){
-document.getElementById("adminBtn").style.display="inline-block"
+adminBtn.style.display="inline-block"
 secret=""
 }
+
 })
+
+adminBtn.onclick=()=>{
+gameUI.style.display="none"
+adminUI.style.display="block"
+}
+
+testBtn.onclick=()=>{
+adminUI.style.display="none"
+gameUI.style.display="block"
+updateStage()
+updateInfo()
+}
+
+addRebirth.onclick=()=>{
+rebirths++
+coins++
+updateStage()
+updateInfo()
+}
+
+removeRebirth.onclick=()=>{
+if(rebirths>0) rebirths--
+updateStage()
+updateInfo()
+}
 
 startBtn.onclick=()=>{
 
@@ -251,6 +276,7 @@ function animate(){
 angle+=0.02
 
 if(angle>Math.PI*2){
+
 angle=0
 
 if(started){
@@ -358,15 +384,10 @@ document.getElementById("coinVal").innerText=coins
 document.getElementById("autoVal").innerText=autoGain
 
 let percent=(sumaTryg/threshold)*100
-document.getElementById("rebirthBar").style.width=percent+"%"
-
-let levelMax=10
-if(rebirths>=10) levelMax=20
-if(rebirths>=20) levelMax=30
-if(rebirths>=30) levelMax=40
+rebirthBar.style.width=percent+"%"
 
 let levelProgress=((rebirths%10)/10)*100
-document.getElementById("levelBar").style.width=levelProgress+"%"
+levelBar.style.width=levelProgress+"%"
 
 updateVolume()
 
@@ -374,6 +395,9 @@ updateVolume()
 
 animate()
 
+}
+
 </script>
+
 </body>
 </html>
